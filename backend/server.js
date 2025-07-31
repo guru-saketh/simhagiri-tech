@@ -2,6 +2,8 @@ import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import Customer from './models/Customer.js';
+import billRoutes from './routes/bills.js';
+import customerRoutes from './routes/customers.js';
 
 const app = express();
 const port = 5000;
@@ -14,25 +16,15 @@ app.use(
   })
 );
 
+app.use("/api/bills", billRoutes);
+app.use("/api/customers", customerRoutes);
+
 mongoose
   .connect("mongodb://127.0.0.1:27017/customerDB", {
   })
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.error("MongoDB error:", err));
 
-app.post("/api/customers", async(req, res) => {
-    try {
-      const { shopName, area, contactNumber, gst } = req.body;
-
-      const customer = new Customer({ shopName, area, contactNumber, gst });
-      await customer.save();
-
-      res.status(201).json({ message: "Customer saved successfully" });
-    } catch (error) {
-      console.error("Error saving customer:", error);
-      res.status(500).json({ error: "Server Error" });
-    }
-})
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
