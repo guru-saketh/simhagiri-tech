@@ -8,7 +8,7 @@ const billSchema = new mongoose.Schema({
   },
   amountPurchased: { type: Number, required: true },
   amountGiven: { type: Number, default: 0 },
-  balance: { type: Number },
+  // balance: { type: Number },
   date: { type: Date, required: true }, // ✅ Add this line
   createdAt: { type: Date, default: Date.now },
 });

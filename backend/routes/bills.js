@@ -8,13 +8,12 @@ const router = express.Router();
 // POST /api/bills
 router.post("/", async (req, res) => {
   try {
-    const { customer, amountPurchased, amountGiven, balance, date } = req.body;
+    const { customer, amountPurchased, amountGiven, date } = req.body;
 
     const bill = new Bill({
       customer,
       amountPurchased,
       amountGiven,
-      balance,
       date, // ✅ Store the custom date from frontend
     });
 
@@ -40,6 +39,58 @@ router.get('/', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch bills' });
   }
 });
+
+router.get("/balances",async(req,res)=>{
+  try {
+    const balances = await Bill.aggregate([
+      {
+        $group: {
+          _id: "$customer",
+          totalPurchased: { $sum: "$amountPurchased" },
+          totalGiven: { $sum: "$amountGiven" },
+        },
+      },
+      {
+        $lookup: {
+          from: "customers",
+          localField: "_id",
+          foreignField: "_id",
+          as: "customer",
+        },
+      },
+      { $unwind: "$customer" },
+      {
+        $project: {
+          shopName: "$customer.shopName",
+          area: "$customer.area",
+          contactNumber: "$customer.contactNumber",
+          totalPurchased: 1,
+          totalGiven: 1,
+          balance: { $subtract: ["$totalPurchased", "$totalGiven"] },
+        },
+      },
+    ]);
+
+    res.json(balances);
+  } catch (error) {
+    console.error("Error calculating balances:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+
+
+})
+
+router.get("/by-customer/:id", async (req, res) => {
+  try {
+    const bills = await Bill.find({ customer: req.params.id }).sort({
+      date: -1,
+    });
+    res.json(bills);
+  } catch (err) {
+    res.status(500).json({ error: "Error fetching bills" });
+  }
+});
+
 
 
 export default router;

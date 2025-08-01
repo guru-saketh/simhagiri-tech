@@ -3,7 +3,7 @@ import Customer from "../models/Customer.js"; // Ensure this path is correct bas
 
 const router = express.Router();
 
-router.post("/api/customers", async (req, res) => {
+router.post("/", async (req, res) => {
   try {
     const { shopName, area, contactNumber, gst } = req.body;
 
@@ -17,7 +17,7 @@ router.post("/api/customers", async (req, res) => {
   }
 });
 
-router.get("/api/customers", async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const customers = await Customer.find();
     res.json(customers);
@@ -25,5 +25,15 @@ router.get("/api/customers", async (req, res) => {
     console.error("Error fetching customers:", error);
   }
 });
+
+router.get("/:id", async (req, res) => {
+  try {
+    const customer = await Customer.findById(req.params.id);
+    res.json(customer);
+  } catch (err) {
+    res.status(500).json({ error: "Customer not found" });
+  }
+});
+
 
 export default router;
