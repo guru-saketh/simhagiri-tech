@@ -1,5 +1,6 @@
 import express from "express";
 import Purchase from "../models/Purchase.js";
+import Supplier from "../models/Supplier.js";
 
 const router = express.Router();
 
@@ -41,6 +42,7 @@ router.get("/", async (req, res) => {
 // GET /api/purchases/balances
 router.get("/balances", async (req, res) => {
   try {
+ 
     const balances = await Purchase.aggregate([
       {
         $group: {
@@ -69,7 +71,6 @@ router.get("/balances", async (req, res) => {
         },
       },
     ]);
-
     res.json(balances);
   } catch (error) {
     console.error("Error calculating balances:", error);
