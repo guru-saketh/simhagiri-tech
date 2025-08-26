@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { UserPlus } from "lucide-react";
 import {
   Button,
   Dialog,
@@ -9,21 +10,22 @@ import {
   TextField,
   Snackbar,
   Alert,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
 
-const AddCustomer = () => {
+const AddParty = () => {
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({
+    role: "customer", // 'customer' | 'supplier'
     shopName: "",
     area: "",
     contactNumber: "",
     gst: "",
   });
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: "",
-    severity: "success",
-  });
+  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -33,52 +35,71 @@ const AddCustomer = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:5001/api/customers", form);
-      setSnackbar({
-        open: true,
-        message: "Customer added successfully",
-        severity: "success",
-      });
-      // Notify other components to refresh without a full reload
-      window.dispatchEvent(new CustomEvent("customers:updated"));
+      const payload = {
+        shopName: form.shopName,
+        area: form.area,
+        contactNumber: form.contactNumber,
+        gst: form.gst,
+      };
+      if (form.role === "customer") {
+        await axios.post("http://localhost:5001/api/customers", payload);
+        window.dispatchEvent(new CustomEvent("customers:updated"));
+      } else {
+        await axios.post("http://localhost:5001/api/suppliers", payload);
+        window.dispatchEvent(new CustomEvent("suppliers:updated"));
+      }
+      setSnackbar({ open: true, message: `${form.role === "customer" ? "Customer" : "Supplier"} added successfully`, severity: "success" });
       setShowModal(false);
-      setForm({ shopName: "", area: "", contactNumber: "", gst: "" });
+      setForm({ role: form.role, shopName: "", area: "", contactNumber: "", gst: "" });
     } catch (error) {
-      console.error("Error adding customer:", error);
-      setSnackbar({
-        open: true,
-        message: "Failed to add customer",
-        severity: "error",
-      });
+      console.error("Error adding party:", error);
+      setSnackbar({ open: true, message: "Failed to add", severity: "error" });
     }
   };
 
-  const handleCloseSnackbar = () => {
-    setSnackbar({ ...snackbar, open: false });
-  };
+  const handleCloseSnackbar = () => setSnackbar({ ...snackbar, open: false });
 
   return (
     <>
       <Button
-        variant="contained"
+        variant="outlined"
         color="primary"
+        startIcon={<UserPlus size={16} />}
         onClick={() => setShowModal(true)}
+        sx={{
+          borderRadius: "9999px",
+          textTransform: "none",
+          px: 2.5,
+          py: 1,
+          bgcolor: "white",
+          borderColor: "#e5e7eb",
+          ":hover": { bgcolor: "#f9fafb", borderColor: "#d1d5db" },
+        }}
       >
-        + Add Customer
+        Add Party
       </Button>
 
-      <Dialog
-        open={showModal}
-        onClose={() => setShowModal(false)}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle>Add Customer</DialogTitle>
+      <Dialog open={showModal} onClose={() => setShowModal(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Add Party</DialogTitle>
         <form onSubmit={handleSubmit}>
           <DialogContent dividers>
+            <FormControl fullWidth margin="normal">
+              <InputLabel id="role-label">Role</InputLabel>
+              <Select
+                labelId="role-label"
+                label="Role"
+                name="role"
+                value={form.role}
+                onChange={handleChange}
+              >
+                <MenuItem value="customer">Customer</MenuItem>
+                <MenuItem value="supplier">Supplier</MenuItem>
+              </Select>
+            </FormControl>
+
             <TextField
               name="shopName"
-              label="Shop Name"
+              label="Name / Shop Name"
               fullWidth
               required
               margin="normal"
@@ -129,11 +150,7 @@ const AddCustomer = () => {
         onClose={handleCloseSnackbar}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
-        <Alert
-          onClose={handleCloseSnackbar}
-          severity={snackbar.severity}
-          sx={{ width: "100%" }}
-        >
+        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: "100%" }}>
           {snackbar.message}
         </Alert>
       </Snackbar>
@@ -141,4 +158,4 @@ const AddCustomer = () => {
   );
 };
 
-export default AddCustomer;
+export default AddParty;

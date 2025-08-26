@@ -11,7 +11,7 @@ import {
   Alert,
 } from "@mui/material";
 
-const AddCustomer = () => {
+const AddSupplier = () => {
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({
     shopName: "",
@@ -33,52 +33,33 @@ const AddCustomer = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:5001/api/customers", form);
-      setSnackbar({
-        open: true,
-        message: "Customer added successfully",
-        severity: "success",
-      });
-      // Notify other components to refresh without a full reload
-      window.dispatchEvent(new CustomEvent("customers:updated"));
+      await axios.post("http://localhost:5001/api/suppliers", form);
+      setSnackbar({ open: true, message: "Supplier added successfully", severity: "success" });
+      // Notify other components to refresh supplier lists
+      window.dispatchEvent(new CustomEvent("suppliers:updated"));
       setShowModal(false);
       setForm({ shopName: "", area: "", contactNumber: "", gst: "" });
     } catch (error) {
-      console.error("Error adding customer:", error);
-      setSnackbar({
-        open: true,
-        message: "Failed to add customer",
-        severity: "error",
-      });
+      console.error("Error adding supplier:", error);
+      setSnackbar({ open: true, message: "Failed to add supplier", severity: "error" });
     }
   };
 
-  const handleCloseSnackbar = () => {
-    setSnackbar({ ...snackbar, open: false });
-  };
+  const handleCloseSnackbar = () => setSnackbar({ ...snackbar, open: false });
 
   return (
     <>
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={() => setShowModal(true)}
-      >
-        + Add Customer
+      <Button variant="contained" color="primary" onClick={() => setShowModal(true)}>
+        + Add Supplier
       </Button>
 
-      <Dialog
-        open={showModal}
-        onClose={() => setShowModal(false)}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle>Add Customer</DialogTitle>
+      <Dialog open={showModal} onClose={() => setShowModal(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Add Supplier</DialogTitle>
         <form onSubmit={handleSubmit}>
           <DialogContent dividers>
             <TextField
               name="shopName"
-              label="Shop Name"
+              label="Supplier/Shop Name"
               fullWidth
               required
               margin="normal"
@@ -129,11 +110,7 @@ const AddCustomer = () => {
         onClose={handleCloseSnackbar}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
-        <Alert
-          onClose={handleCloseSnackbar}
-          severity={snackbar.severity}
-          sx={{ width: "100%" }}
-        >
+        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: "100%" }}>
           {snackbar.message}
         </Alert>
       </Snackbar>
@@ -141,4 +118,4 @@ const AddCustomer = () => {
   );
 };
 
-export default AddCustomer;
+export default AddSupplier;

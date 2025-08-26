@@ -31,10 +31,10 @@ const CustomerTransactions = () => {
     async function fetchData() {
       try {
         const customerRes = await axios.get(
-          `http://localhost:5000/api/customers/${id}`
+          `http://localhost:5001/api/customers/${id}`
         );
         const billsRes = await axios.get(
-          `http://localhost:5000/api/bills/by-customer/${id}`
+          `http://localhost:5001/api/bills/by-customer/${id}`
         );
         setCustomer(customerRes.data);
         setBills(billsRes.data);
@@ -46,6 +46,9 @@ const CustomerTransactions = () => {
     }
 
     fetchData();
+    const onBillsUpdated = () => fetchData();
+    window.addEventListener("bills:updated", onBillsUpdated);
+    return () => window.removeEventListener("bills:updated", onBillsUpdated);
   }, [id]);
 
   const purchases = bills.filter((b) => b.amountPurchased > 0);

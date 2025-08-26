@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { ReceiptText } from "lucide-react";
 import {
   Button,
   Dialog,
@@ -15,7 +16,11 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 
-const CreateBill = () => {
+const CreateBill = ({
+  triggerLabel = "+ Create Bill",
+  dialogTitle = "Create Bill",
+  saveLabel = "Save Bill",
+}) => {
   const [open, setOpen] = useState(false);
   const [customers, setCustomers] = useState([]);
   const [form, setForm] = useState({
@@ -38,13 +43,18 @@ const CreateBill = () => {
   useEffect(() => {
     async function fetchCustomers() {
       try {
-        const res = await axios.get("http://localhost:5000/api/customers");
+        const res = await axios.get("http://localhost:5001/api/customers");
         setCustomers(res.data);
       } catch (err) {
         console.error("Error fetching customers", err);
       }
     }
     fetchCustomers();
+
+    // Listen for customer updates to refresh options without reload
+    const handler = () => fetchCustomers();
+    window.addEventListener("customers:updated", handler);
+    return () => window.removeEventListener("customers:updated", handler);
   }, []);
 
   const handleChange = (e) => {
@@ -64,7 +74,7 @@ const CreateBill = () => {
     }
 
     try {
-      await axios.post("http://localhost:5000/api/bills", {
+      await axios.post("http://localhost:5001/api/bills", {
         customer: form.customer._id,
         amountPurchased: Number(form.amountPurchased),
         amountGiven: Number(form.amountGiven),
@@ -77,6 +87,8 @@ const CreateBill = () => {
         message: "Bill created successfully",
         severity: "success",
       });
+      // Notify other views (balances, transactions) to refresh
+      window.dispatchEvent(new CustomEvent("bills:updated"));
       setOpen(false);
       setForm({
         customer: null,
@@ -96,8 +108,20 @@ const CreateBill = () => {
 
   return (
     <>
-      <Button variant="contained" onClick={() => setOpen(true)}>
-        + Create Bill
+      <Button
+        variant="contained"
+        startIcon={<ReceiptText size={16} />}
+        onClick={() => setOpen(true)}
+        sx={{
+          borderRadius: "9999px",
+          textTransform: "none",
+          px: 2.5,
+          py: 1,
+          boxShadow: "none",
+          ":hover": { boxShadow: "none" },
+        }}
+      >
+        {triggerLabel}
       </Button>
 
       <Dialog
@@ -106,7 +130,7 @@ const CreateBill = () => {
         maxWidth="sm"
         fullWidth
       >
-        <DialogTitle>Create Bill</DialogTitle>
+        <DialogTitle>{dialogTitle}</DialogTitle>
         <form onSubmit={handleSubmit}>
           <DialogContent dividers>
             <LocalizationProvider dateAdapter={AdapterDateFns}>
@@ -141,7 +165,7 @@ const CreateBill = () => {
                 name="amountPurchased"
                 type="number"
                 fullWidth
-                required
+                
                 value={form.amountPurchased}
                 onChange={handleChange}
                 margin="normal"
@@ -171,7 +195,7 @@ const CreateBill = () => {
               Cancel
             </Button>
             <Button type="submit" variant="contained">
-              Save Bill
+              {saveLabel}
             </Button>
           </DialogActions>
         </form>
