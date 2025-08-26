@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { MoreHorizontal, Users, Search, Filter } from "lucide-react";
 
 const CustomerBalances = () => {
   const [balances, setBalances] = useState([]);
   const [selectedLetter, setSelectedLetter] = useState("All");
+  const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -32,12 +34,12 @@ const CustomerBalances = () => {
 
   const alphabetLetters = [..."ABCDEFGHIJKLMNOPQRSTUVWXYZ"];
 
-  const filteredBalances =
-    selectedLetter === "All"
-      ? balances
-      : balances.filter((c) =>
-          c.shopName?.toUpperCase().startsWith(selectedLetter)
-        );
+  const filteredBalances = balances.filter(
+    (c) =>
+      (selectedLetter === "All" ||
+        c.shopName?.toUpperCase().startsWith(selectedLetter)) &&
+      c.shopName?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="flex h-[calc(100vh-80px)]">
@@ -78,77 +80,152 @@ const CustomerBalances = () => {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 p-6 overflow-auto">
-        <h2 className="text-xl font-semibold mb-3">
-          {selectedLetter === "All"
-            ? "All Customers"
-            : `Customers: ${selectedLetter}`}
-        </h2>
-
-        {filteredBalances.length === 0 ? (
-          <p className="text-gray-500">
-            No customers starting with '{selectedLetter}'
-          </p>
-        ) : (
-          <div className="overflow-hidden rounded-lg border bg-white shadow-sm">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Shop Name
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Contact
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Area
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Total Purchased
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Total Given
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Balance
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {filteredBalances.map((c) => (
-                  <tr
-                    key={c._id}
-                    className="hover:bg-gray-50 cursor-pointer"
-                    onClick={() => navigate(`/customer/${c._id}`)}
-                  >
-                    <td className="px-4 py-3 text-sm text-gray-800">
-                      {c.shopName}
-                    </td>
-                    <td className="px-4 py-3 text-sm text-gray-600">
-                      {c.contactNumber}
-                    </td>
-                    <td className="px-4 py-3 text-sm text-gray-600">
-                      {c.area}
-                    </td>
-                    <td className="px-4 py-3 text-sm text-gray-800">
-                      {formatRupee(c.totalPurchased)}
-                    </td>
-                    <td className="px-4 py-3 text-sm text-gray-800">
-                      {formatRupee(c.totalGiven)}
-                    </td>
-                    <td
-                      className={`px-4 py-3 text-sm font-semibold ${
-                        c.balance <= 0 ? "text-green-600" : "text-red-600"
-                      }`}
-                    >
-                      {formatRupee(c.balance)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+      <div className="flex-1 flex flex-col">
+        {/* 🔹 Styled Header */}
+        <div className="bg-white border-b border-gray-200 px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <h2 className="text-xl font-semibold text-gray-900 flex items-center">
+                <Users className="w-5 h-5 mr-2 text-blue-600" />
+                {selectedLetter === "All"
+                  ? "All Customers"
+                  : `Customers: ${selectedLetter}`}
+              </h2>
+              <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-sm">
+                {filteredBalances.length} customers
+              </span>
+            </div>
+            <div className="flex items-center space-x-3">
+              {/* Search */}
+              <div className="relative">
+                <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search customers..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none w-64"
+                />
+              </div>
+              {/* Filter button (UI only, no functionality yet) */}
+              <button className="flex items-center px-3 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                <Filter className="w-4 h-4 mr-2" />
+                Filter
+              </button>
+            </div>
           </div>
-        )}
+        </div>
+
+        {/* Table Section */}
+        <div className="flex-1 overflow-auto bg-white p-6">
+          {filteredBalances.length === 0 ? (
+            <p className="text-gray-500">
+              No customers starting with '{selectedLetter}'
+            </p>
+          ) : (
+            <div className="overflow-x-auto rounded-lg bg-white shadow-sm">
+              <table className="w-full">
+                <thead className="bg-gray-50 border-b border-gray-200">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      Shop Name
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      Contact
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      Area
+                    </th>
+                    <th className="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      Total Purchased
+                    </th>
+                    <th className="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      Total Given
+                    </th>
+                    <th className="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      Balance
+                    </th>
+                    <th className="px-6 py-4 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {filteredBalances.map((c) => (
+                    <tr
+                      key={c._id}
+                      className="hover:bg-gray-50 transition-colors cursor-pointer"
+                      onClick={() => navigate(`/customer/${c._id}`)}
+                    >
+                      {/* Shop with avatar */}
+                      <td className="px-6 py-4">
+                        <div className="flex items-center">
+                          <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                            <span className="text-blue-600 font-semibold text-sm">
+                              {c.shopName?.charAt(0).toUpperCase()}
+                            </span>
+                          </div>
+                          <div className="font-medium text-gray-900">
+                            {c.shopName}
+                          </div>
+                        </div>
+                      </td>
+
+                      {/* Contact */}
+                      <td className="px-6 py-4 text-gray-700">
+                        <span className="font-mono text-sm">
+                          {c.contactNumber}
+                        </span>
+                      </td>
+
+                      {/* Area */}
+                      <td className="px-6 py-4">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                          {c.area}
+                        </span>
+                      </td>
+
+                      {/* Purchased */}
+                      <td className="px-6 py-4 text-right font-medium text-gray-900">
+                        {formatRupee(c.totalPurchased)}
+                      </td>
+
+                      {/* Given */}
+                      <td className="px-6 py-4 text-right font-medium text-gray-700">
+                        {formatRupee(c.totalGiven)}
+                      </td>
+
+                      {/* Balance */}
+                      <td className="px-6 py-4 text-right">
+                        <span
+                          className={`font-bold ${
+                            c.balance > 0
+                              ? "text-red-600"
+                              : c.balance === 0
+                              ? "text-green-600"
+                              : "text-blue-600"
+                          }`}
+                        >
+                          {formatRupee(c.balance)}
+                        </span>
+                      </td>
+
+                      {/* Actions */}
+                      <td
+                        className="px-6 py-4 text-center"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <button className="text-gray-400 hover:text-gray-600 transition-colors">
+                          <MoreHorizontal className="w-5 h-5" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
