@@ -15,6 +15,7 @@ import {
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { Receipt, Cancel, Save } from "@mui/icons-material";
 
 const CreateBill = ({
   triggerLabel = "+ Create Bill",
@@ -134,6 +135,7 @@ const CreateBill = ({
         <form onSubmit={handleSubmit}>
           <DialogContent dividers>
             <LocalizationProvider dateAdapter={AdapterDateFns}>
+              {/* ✅ Autocomplete with full width */}
               <Autocomplete
                 options={customers}
                 getOptionLabel={(option) => option.shopName || ""}
@@ -145,27 +147,32 @@ const CreateBill = ({
                     label="Select Customer"
                     required
                     margin="normal"
+                    fullWidth
                   />
                 )}
               />
 
+              {/* ✅ DatePicker with full width */}
               <DatePicker
                 label="Bill Date"
                 value={form.date}
                 onChange={(newDate) => setForm({ ...form, date: newDate })}
-                format="dd-MM-yyyy" // ✅ show date in dd-MM-yyyy format
-                views={["year", "month", "day"]} // ✅ shows year first, then month, then day
-                renderInput={(params) => (
-                  <TextField {...params} fullWidth margin="normal" />
-                )}
+                format="dd-MM-yyyy"
+                views={["year", "month", "day"]}
+                slotProps={{
+                  textField: {
+                    fullWidth: true,
+                    margin: "normal",
+                  },
+                }}
               />
 
+              {/* ✅ TextFields already full width */}
               <TextField
                 label="Amount Purchased"
                 name="amountPurchased"
                 type="number"
                 fullWidth
-                
                 value={form.amountPurchased}
                 onChange={handleChange}
                 margin="normal"
@@ -190,13 +197,48 @@ const CreateBill = ({
               )}
             </LocalizationProvider>
           </DialogContent>
+
           <DialogActions>
-            <Button onClick={() => setOpen(false)} color="secondary">
-              Cancel
-            </Button>
-            <Button type="submit" variant="contained">
-              {saveLabel}
-            </Button>
+            <Button
+                          onClick={() => setOpen(false)}
+                          color="secondary"
+                          startIcon={<Cancel />}
+                          variant="outlined"
+                          sx={{
+                            textTransform: "none",
+                            borderRadius: "9999px",
+                            px: 2.5,
+                            py: 1,
+                            transition: "all 0.2s ease-in-out", // smooth animation
+                            ":hover": {
+                              transform: "translateY(-3px)", // ✅ lifts up
+                              boxShadow: "0 6px 12px rgba(0,0,0,0.15)", // ✅ soft shadow
+                              backgroundColor: "rgba(220, 38, 38, 0.1)", // subtle red tint
+                            },
+                          }}
+                        >
+                          Cancel
+                        </Button>
+                       <Button
+                          type="submit"
+                          variant="contained"
+                          startIcon={<Save />}
+                          sx={{
+                            textTransform: "none",
+                            borderRadius: "9999px",
+                            px: 2.5,
+                            py: 1,
+                            boxShadow: "none",
+                            transition: "all 0.2s ease-in-out",
+                            ":hover": {
+                              transform: "translateY(-3px)", // ✅ lifts up
+                              boxShadow: "0 6px 12px rgba(0,0,0,0.2)", // ✅ stronger shadow
+                              backgroundColor: "primary.dark",
+                            },
+                          }}
+                        >
+                          {saveLabel}
+                        </Button>
           </DialogActions>
         </form>
       </Dialog>

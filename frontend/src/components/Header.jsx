@@ -27,8 +27,8 @@ const Header = () => {
       <div className="flex items-center gap-4">
         <h1 className="text-xl font-semibold text-gray-800">Welcome Back</h1>
         <nav className="flex items-center gap-2">
-          {navLink("/dashboard", "Dashboard")}
-          {navLink("/", "Customers")}
+          {navLink("/", "Dashboard")}
+          {navLink("/customers", "Customers")}
           {navLink("/suppliers", "Suppliers")}
         </nav>
       </div>

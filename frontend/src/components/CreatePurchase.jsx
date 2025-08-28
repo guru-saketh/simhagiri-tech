@@ -15,6 +15,7 @@ import {
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { Receipt, Cancel, Save } from "@mui/icons-material";
 
 const CreatePurchase = ({
   triggerLabel = "+ Record Purchase",
@@ -103,7 +104,12 @@ const CreatePurchase = ({
         {triggerLabel}
       </Button>
 
-      <Dialog open={open} onClose={() => setOpen(false)} maxWidth="sm" fullWidth>
+      <Dialog
+        open={open}
+        onClose={() => setOpen(false)}
+        maxWidth="sm"
+        fullWidth
+      >
         <DialogTitle>{dialogTitle}</DialogTitle>
         <form onSubmit={handleSubmit}>
           <DialogContent dividers>
@@ -114,7 +120,13 @@ const CreatePurchase = ({
                 value={form.supplier}
                 onChange={handleSupplierSelect}
                 renderInput={(params) => (
-                  <TextField {...params} label="Select Supplier" required margin="normal" />
+                  <TextField
+                    {...params}
+                    label="Select Supplier"
+                    required
+                    margin="normal"
+                    fullWidth
+                  />
                 )}
               />
 
@@ -124,7 +136,12 @@ const CreatePurchase = ({
                 onChange={(newDate) => setForm({ ...form, date: newDate })}
                 format="dd-MM-yyyy"
                 views={["year", "month", "day"]}
-                renderInput={(params) => <TextField {...params} fullWidth margin="normal" />}
+                slotProps={{
+                  textField: {
+                    fullWidth: true,
+                    margin: "normal",
+                  },
+                }}
               />
 
               <TextField
@@ -159,8 +176,44 @@ const CreatePurchase = ({
             </LocalizationProvider>
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => setOpen(false)} color="secondary">Cancel</Button>
-            <Button type="submit" variant="contained">
+            <Button
+              onClick={() => setOpen(false)}
+              color="secondary"
+              startIcon={<Cancel />}
+              variant="outlined"
+              sx={{
+                textTransform: "none",
+                borderRadius: "9999px",
+                px: 2.5,
+                py: 1,
+                transition: "all 0.2s ease-in-out", // smooth animation
+                ":hover": {
+                  transform: "translateY(-3px)", // ✅ lifts up
+                  boxShadow: "0 6px 12px rgba(0,0,0,0.15)", // ✅ soft shadow
+                  backgroundColor: "rgba(220, 38, 38, 0.1)", // subtle red tint
+                },
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              variant="contained"
+              startIcon={<Save />}
+              sx={{
+                textTransform: "none",
+                borderRadius: "9999px",
+                px: 2.5,
+                py: 1,
+                boxShadow: "none",
+                transition: "all 0.2s ease-in-out",
+                ":hover": {
+                  transform: "translateY(-3px)", // ✅ lifts up
+                  boxShadow: "0 6px 12px rgba(0,0,0,0.2)", // ✅ stronger shadow
+                  backgroundColor: "primary.dark",
+                },
+              }}
+            >
               {saveLabel}
             </Button>
           </DialogActions>
@@ -173,7 +226,10 @@ const CreatePurchase = ({
         onClose={() => setSnackbar({ ...snackbar, open: false })}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
-        <Alert severity={snackbar.severity} onClose={() => setSnackbar({ ...snackbar, open: false })}>
+        <Alert
+          severity={snackbar.severity}
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+        >
           {snackbar.message}
         </Alert>
       </Snackbar>

@@ -11,8 +11,8 @@ function App() {
     <Router>
       <Header />
       <Routes>
-        <Route path="/" element={<CustomerBalances />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/customers" element={<CustomerBalances />} />
+        <Route path="/" element={<Dashboard />} />
         <Route path="/customer/:id" element={<CustomerTransactions />} />
         <Route path="/suppliers" element={<SupplierBalances />} />
         <Route path="/supplier/:id" element={<SupplierTransactions />} />
