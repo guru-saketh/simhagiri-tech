@@ -107,11 +107,8 @@ const CustomerBalances = () => {
                   className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none w-64"
                 />
               </div>
-              {/* Filter button (UI only, no functionality yet) */}
-              <button className="flex items-center px-3 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
-                <Filter className="w-4 h-4 mr-2" />
-                Filter
-              </button>
+            
+             
             </div>
           </div>
         </div>

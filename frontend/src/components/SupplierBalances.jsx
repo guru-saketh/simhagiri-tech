@@ -34,10 +34,12 @@ const SupplierBalances = () => {
 
    const alphabetLetters = [..."ABCDEFGHIJKLMNOPQRSTUVWXYZ"];
 
-  const filteredBalances =
-    selectedLetter === "All"
-      ? balances
-      : balances.filter((s) => s.shopName?.toUpperCase().startsWith(selectedLetter));
+   const filteredBalances = balances.filter(
+     (c) =>
+       (selectedLetter === "All" ||
+         c.shopName?.toUpperCase().startsWith(selectedLetter)) &&
+       c.shopName?.toLowerCase().includes(searchTerm.toLowerCase())
+   );
 
   return (
     <div className="flex h-[calc(100vh-80px)]">
@@ -98,17 +100,16 @@ const SupplierBalances = () => {
               {/* Search (UI only, can wire up later) */}
               <div className="relative">
                 <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search suppliers..."
-                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none w-64"
-                />
+                                <input
+                                  type="text"
+                                  placeholder="Search customers..."
+                                  value={searchTerm}
+                                  onChange={(e) => setSearchTerm(e.target.value)}
+                                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none w-64"
+                                />
               </div>
-              {/* Filter button (UI only) */}
-              <button className="flex items-center px-3 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
-                <Filter className="w-4 h-4 mr-2" />
-                Filter
-              </button>
+             
+             
             </div>
           </div>
         </div>
